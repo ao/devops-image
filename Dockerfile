@@ -1,26 +1,16 @@
 # Use Alpine as the base image
-FROM alpine:latest
+FROM alpine:latest AS builder
 
-# Install basic tools and packages from apk
+# Install build dependencies
 RUN apk update && \
     apk add --no-cache \
         git \
-        vim \
         wget \
         curl \
-        shadow \
-        py3-pip \
-        python3 \
-        bash \
         build-base \
-        nodejs \
-        npm \
-        ripgrep \
-        fd \
-        alpine-sdk \
         unzip
 
-# Install Go
+# Install Go in the builder stage
 ENV GOLANG_VERSION=1.24.5
 ENV PATH=$PATH:/usr/local/go/bin
 ENV GOPATH=/go
@@ -29,32 +19,62 @@ ENV PATH=$PATH:$GOPATH/bin
 RUN wget https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
     tar -C /usr/local -xzf go${GOLANG_VERSION}.linux-amd64.tar.gz && \
     rm go${GOLANG_VERSION}.linux-amd64.tar.gz && \
-    mkdir -p "$GOPATH/src" "$GOPATH/bin" && \
-    chmod -R 777 "$GOPATH"
+    mkdir -p "$GOPATH/src" "$GOPATH/bin"
 
-# Install lazygit (using a specific version to avoid parsing issues)
+# Download lazygit
 RUN LAZYGIT_VERSION="0.40.2" && \
     curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" && \
-    tar xf lazygit.tar.gz lazygit && \
-    install lazygit /usr/local/bin && \
-    rm lazygit lazygit.tar.gz
+    tar xf lazygit.tar.gz && \
+    rm lazygit.tar.gz
 
-# Install Neovim and dependencies for LazyVim
-RUN apk add --no-cache neovim xclip wl-clipboard
+# Clone LazyVim starter
+RUN mkdir -p /root/.config/nvim && \
+    git clone --depth=1 https://github.com/LazyVim/starter /root/.config/nvim && \
+    rm -rf /root/.config/nvim/.git
 
-# Install LazyNvim
-RUN mkdir -p /root/.config/nvim
-RUN git clone --depth=1 https://github.com/LazyVim/starter /root/.config/nvim
-RUN rm -rf /root/.config/nvim/.git
+# Clone tfenv
+RUN git clone --depth=1 https://github.com/tfutils/tfenv.git /usr/local/tfenv
 
-# Install tfenv for Terraform version management
-RUN git clone https://github.com/tfutils/tfenv.git /usr/local/tfenv && \
+# Final stage
+FROM alpine:latest
+
+# Copy artifacts from builder stage
+COPY --from=builder /usr/local/go /usr/local/go
+COPY --from=builder /go /go
+COPY --from=builder /lazygit /usr/local/bin/lazygit
+COPY --from=builder /root/.config/nvim /root/.config/nvim
+COPY --from=builder /usr/local/tfenv /usr/local/tfenv
+
+# Set environment variables
+ENV PATH=$PATH:/usr/local/go/bin:/go/bin:/usr/local/tfenv/bin
+ENV GOPATH=/go
+
+# Install runtime dependencies in a single layer
+RUN apk update && \
+    apk add --no-cache \
+        git \
+        vim \
+        neovim \
+        wget \
+        curl \
+        shadow \
+        py3-pip \
+        python3 \
+        bash \
+        nodejs \
+        npm \
+        ripgrep \
+        fd \
+        xclip \
+        wl-clipboard && \
+    # Set up tfenv
     ln -s /usr/local/tfenv/bin/* /usr/local/bin && \
-    mkdir -p /root/.tfenv/versions
-
-# Install latest Terraform version
-RUN tfenv install latest && \
-    tfenv use latest
+    mkdir -p /root/.tfenv/versions && \
+    # Install latest Terraform version
+    tfenv install latest && \
+    tfenv use latest && \
+    # Clean up
+    rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
 
 # Copy entrypoint script to container
 COPY entrypoint.sh /entrypoint.sh

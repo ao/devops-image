@@ -8,7 +8,7 @@ This container provides a consistent development environment with common DevOps 
 
 ## Features
 
-- Based on Alpine Linux for minimal footprint
+- Based on Alpine Linux with multi-stage build for minimal footprint
 - Pre-installed tools:
   - Git (with automatic configuration)
   - Vim and LazyNvim (preconfigured Neovim with clipboard support)
@@ -57,6 +57,7 @@ This configuration is stored for subsequent runs.
 - Access to Git and other DevOps tools from within the container
 - Simplified setup with automatic Git configuration
 - Flexible Terraform version management
+- Optimized container size through multi-stage builds
 
 ## Using Terraform with tfenv
 
