@@ -11,10 +11,20 @@ This container provides a consistent development environment with common DevOps 
 - Based on Alpine Linux for minimal footprint
 - Pre-installed tools:
   - Git (with automatic configuration)
-  - Vim and Neovim editors
+  - Vim and LazyNvim (preconfigured Neovim)
+  - lazygit (terminal UI for Git)
   - wget and curl for downloads
   - Python 3 with pip
+  - Go (latest stable version)
+  - Terraform (via tfenv with latest version)
   - Other essential utilities
+- Terraform version management with tfenv:
+  - Latest version installed by default
+  - Easily switch between Terraform versions as needed
+- Development environments:
+  - Go development environment with GOPATH configured
+  - Python 3 development environment
+  - LazyVim configuration for enhanced editing
 
 ## Usage
 
@@ -46,3 +56,55 @@ This configuration is stored for subsequent runs.
 - Consistent development environment across different machines
 - Access to Git and other DevOps tools from within the container
 - Simplified setup with automatic Git configuration
+- Flexible Terraform version management
+
+## Using Terraform with tfenv
+
+The container comes with tfenv pre-installed, allowing you to manage multiple Terraform versions:
+
+```bash
+# List installed Terraform versions
+tfenv list
+
+# Install a specific version
+tfenv install 1.5.0
+
+# Use a specific version
+tfenv use 1.5.0
+
+# Use the latest version
+tfenv use latest
+```
+
+The latest Terraform version is installed and set as default when the container is built.
+
+## Using Go
+
+The container includes the latest stable version of Go with a properly configured environment:
+
+```bash
+# Check Go version
+go version
+
+# Run a Go program
+go run main.go
+
+# Build a Go program
+go build -o myapp main.go
+```
+
+The GOPATH is set to `/go` and added to the PATH.
+
+## Using LazyNvim and lazygit
+
+The container comes with LazyVim (a preconfigured Neovim setup) and lazygit:
+
+```bash
+# Start LazyVim
+nvim
+
+# Start lazygit (terminal UI for Git)
+lazygit
+```
+
+LazyVim includes many useful plugins and configurations for development. On first run, it will automatically install all plugins.
