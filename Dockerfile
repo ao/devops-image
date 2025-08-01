@@ -46,7 +46,8 @@ ENV ZIG_URL=https://ziglang.org/download/${ZIG_VERSION}/${ARCH}.tar.xz
 RUN curl -L ${ZIG_URL} -o ${ARCH}.tar.xz && \
     tar -xf ${ARCH}.tar.xz && \
     mv ${ARCH} /opt/zig && \
-    rm ${ARCH}.tar.xz
+    rm ${ARCH}.tar.xz && \
+    /opt/zig/zig version
 
 # Final stage
 FROM alpine:latest
