@@ -81,7 +81,8 @@ RUN apk update && \
         ripgrep \
         fd \
         xclip \
-        wl-clipboard && \
+        wl-clipboard \
+        make && \
     # Set up tfenv
     ln -s /usr/local/tfenv/bin/* /usr/local/bin && \
     mkdir -p /root/.tfenv/versions && \
