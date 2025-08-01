@@ -11,8 +11,8 @@ This container provides a consistent development environment with common DevOps 
 - Based on Alpine Linux for minimal footprint
 - Pre-installed tools:
   - Git (with automatic configuration)
-  - Vim and LazyNvim (preconfigured Neovim)
-  - lazygit (terminal UI for Git)
+  - Vim and LazyNvim (preconfigured Neovim with clipboard support)
+  - lazygit v0.40.2 (terminal UI for Git)
   - wget and curl for downloads
   - Python 3 with pip
   - Go (latest stable version)
@@ -107,4 +107,6 @@ nvim
 lazygit
 ```
 
-LazyVim includes many useful plugins and configurations for development. On first run, it will automatically install all plugins.
+LazyVim includes many useful plugins and configurations for development. On first run, it will automatically install all plugins. The container includes clipboard support for Neovim through xclip and wl-clipboard.
+
+Lazygit version 0.40.2 is installed in the container. This terminal UI provides an intuitive interface for Git operations directly from your terminal.

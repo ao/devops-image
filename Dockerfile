@@ -32,19 +32,19 @@ RUN wget https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
     mkdir -p "$GOPATH/src" "$GOPATH/bin" && \
     chmod -R 777 "$GOPATH"
 
-# Install lazygit
-RUN LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
-    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" && \
+# Install lazygit (using a specific version to avoid parsing issues)
+RUN LAZYGIT_VERSION="0.40.2" && \
+    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" && \
     tar xf lazygit.tar.gz lazygit && \
     install lazygit /usr/local/bin && \
     rm lazygit lazygit.tar.gz
 
-# Install Neovim
-RUN apk add --no-cache neovim
+# Install Neovim and dependencies for LazyVim
+RUN apk add --no-cache neovim xclip wl-clipboard
 
 # Install LazyNvim
 RUN mkdir -p /root/.config/nvim
-RUN git clone https://github.com/LazyVim/starter /root/.config/nvim
+RUN git clone --depth=1 https://github.com/LazyVim/starter /root/.config/nvim
 RUN rm -rf /root/.config/nvim/.git
 
 # Install tfenv for Terraform version management
