@@ -68,10 +68,10 @@ The container comes with tfenv pre-installed, allowing you to manage multiple Te
 tfenv list
 
 # Install a specific version
-tfenv install 1.5.0
+tfenv install 1.12.2
 
 # Use a specific version
-tfenv use 1.5.0
+tfenv use 1.12.2
 
 # Use the latest version
 tfenv use latest

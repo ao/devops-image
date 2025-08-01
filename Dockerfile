@@ -8,7 +8,10 @@ RUN apk update && \
         wget \
         curl \
         build-base \
-        unzip
+        unzip \
+        tar \
+        xz \
+        musl-dev
 
 # Install Go in the builder stage
 ENV GOLANG_VERSION=1.24.5
@@ -35,6 +38,16 @@ RUN mkdir -p /root/.config/nvim && \
 # Clone tfenv
 RUN git clone --depth=1 https://github.com/tfutils/tfenv.git /usr/local/tfenv
 
+# Install Zig
+ENV ZIG_VERSION=0.14.1
+ENV ARCH=zig-x86_64-linux-${ZIG_VERSION}
+ENV ZIG_URL=https://ziglang.org/download/${ZIG_VERSION}/${ARCH}.tar.xz
+
+RUN curl -L ${ZIG_URL} -o ${ARCH}.tar.xz && \
+    tar -xf ${ARCH}.tar.xz && \
+    mv ${ARCH} /opt/zig && \
+    rm ${ARCH}.tar.xz
+
 # Final stage
 FROM alpine:latest
 
@@ -44,9 +57,10 @@ COPY --from=builder /go /go
 COPY --from=builder /lazygit /usr/local/bin/lazygit
 COPY --from=builder /root/.config/nvim /root/.config/nvim
 COPY --from=builder /usr/local/tfenv /usr/local/tfenv
+COPY --from=builder /opt/zig /opt/zig
 
 # Set environment variables
-ENV PATH=$PATH:/usr/local/go/bin:/go/bin:/usr/local/tfenv/bin
+ENV PATH=$PATH:/usr/local/go/bin:/go/bin:/usr/local/tfenv/bin:/opt/zig
 ENV GOPATH=/go
 
 # Install runtime dependencies in a single layer
